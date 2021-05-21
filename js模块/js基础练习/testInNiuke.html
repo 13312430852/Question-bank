@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<h2>练习题</h2>
+
+<div id="parentName">
+    <div id="chil01"></div>
+    <div id="chil02">
+        <div></div>
+        <div>
+            <div id="two"></div>
+        </div>
+    </div>
+</div>
+<custom-strong></custom-strong>
+
+
+<script>
+
+    var name = 'window'
+    var obj = {
+        name: 'yyds'
+    }
+
+
+
+/** 改变函数this指向start **/
+    function bindThis (f,obj) {
+        return function (...args) {
+            return f.apply(obj,[...args])
+        }
+    }
+
+    function a () {
+        var r = bindThis(function(a, b) {
+            return this.test + a + b
+            }, {test: 2})(2, 3);
+        return r === 7;
+    }
+    // console.log(a())
+    /** 改变函数this指向end **/
+
+
+/** 获取URL中参数 start**/
+// 获取 url 中的参数
+//     1. 指定参数名称，返回该参数的值 或者 空字符串
+//     2. 不指定参数名称，返回全部的参数对象 或者 {}
+//     3. 如果存在多个同名参数，则返回数组
+    const url = 'http://www.nowcoder.com?key=1&key=2&key=3&test=4#hehe key'
+    function getUrlParam (url, sKey) {
+        let ar = url.split('?')
+        let _paramsObj = new Map()
+        if (ar.length > 0) {
+            let onlyParamStr = ar[1].split('#')[0]
+            onlyParamStr.split('&').forEach(item => {
+                let key = item.split('=')[0]
+                let value = item.split('=')[1]
+                if (_paramsObj.has(key)) {
+                    if (Array.isArray(_paramsObj.get(key))) {
+                        let newV = _paramsObj.get(key)
+                        newV.push(value)
+                        _paramsObj.set(key,newV)
+                    } else {
+                        // let valueCopy = [_paramsObj.get(key)].push(value)
+                        let _oo = _paramsObj.get(key)
+                        let valueCopy = [_oo]
+                        valueCopy.push(value)
+                        _paramsObj.set(key,valueCopy)
+                    }
+                } else {
+                    _paramsObj.set(key,value)
+                }
+            })
+        }
+        if (sKey) {
+            return _paramsObj.has(sKey) ? _paramsObj.get(sKey) : ''
+        } else {
+            let obj = Object.create(null);
+            for (let [k,v] of _paramsObj) {
+                obj[k] = v;
+            }
+            return obj
+        }
+    }
+    // console.log(getUrlParam(url,'key'))
+
+    /** 获取URL中参数 end，（后面可以用正则表达式试试）**/
+
+
+
+    /** 查找两个节点的最近的一个共同父节点，可以包括节点自身start **/
+    // 两节点在同一文件中，且不为相同节点
+
+    function commonParentNode(oNode1, oNode2) {
+        if(oNode1===oNode2) return oNode1;
+        let set = new Set()
+        while (!set.has(oNode1) && !set.has(oNode2)) {
+            set.add(oNode1)
+            set.add(oNode2)
+            if (oNode1.parentNode) {
+                oNode1 = oNode1.parentNode
+            }
+            if (oNode2.parentNode) {
+                oNode2 = oNode2.parentNode
+            }
+        }
+        return set.has(oNode1)?oNode1:oNode2;
+    }
+
+    let paramNode1 = document.getElementById('two')
+    let paramNode2 = document.getElementById('chil01')
+    // console.log(commonParentNode(paramNode1,paramNode2))
+    /** 查找两个节点的最近的一个共同父节点，可以包括节点自身start **/
+
+
+   /** 根据包名，在指定空间中创建对象start **/
+   //输入 {namespace({a: {test: 1, b: 2}}, 'a.b.c.d')
+   //输出 {a: {test: 1, b: {c: {d: {}}}}}
+    function namespace(oNamespace, sPackage) {
+        let arr = sPackage.split('.')
+        if (arr.length > 1) {
+
+            if (oNamespace[arr[0]] && Object.prototype.toString.call(oNamespace[arr[0]]) === '[object Object]') {
+                oNamespace[arr[0]] = namespace(oNamespace[arr[0]],sPackage.substring(2))
+            } else {
+                oNamespace[arr[0]] = namespace({},sPackage.substring(2))
+            }
+        } else if(arr.length === 1) {
+            oNamespace[arr[0]] = {}
+        }
+        return oNamespace
+    }
+    // console.log(namespace({a:{test:'111',b:'a'}},'a.b.c'));
+    /** 根据包名，在指定空间中创建对象end **/
+
+
+
+    /** 为 Array 对象添加一个去除重复项的方法start **/
+
+    function noRepeat() {
+        let arr = this
+        let set = new Set(arr)
+        return [...set]
+        // return [...new Set(this)];
+    }
+    Array.prototype.noRepeat = noRepeat
+    let repeatArr = [false, true, undefined, null, NaN, 0, 1, {}, {}, 'a', 'a', NaN]
+    // console.log('b',repeatArr.noRepeat())
+
+    /** 为 Array 对象添加一个去除重复项的方法end **/
+
+
+    /** 斐波那契数 1,1,2,3,5,8,13...,后面一个数是前面俩数和 start **/
+
+    function fibonacci(n) {
+        if (n === 1 || n ===2) {
+            return 1
+        } else {
+            return fibonacci(n-1) + fibonacci(n-2)
+        }
+    }
+    // console.log(fibonacci(5))
+    /** 斐波那契数 1,1,2,3,5,8,13...,后面一个数是前面俩数和 end **/
+
+
+    /** 输出指定格式 start **/
+    // 按所给的时间格式输出指定的时间
+    // 格式说明
+    // 对于 2014.09.05 13:14:20
+    // yyyy: 年份，2014
+    // yy: 年份，14
+    // MM: 月份，补满两位，09
+    // M: 月份, 9
+    // dd: 日期，补满两位，05
+    // d: 日期, 5
+    // HH: 24制小时，补满两位，13
+    // H: 24制小时，13
+    // hh: 12制小时，补满两位，01
+    // h: 12制小时，1
+    // mm: 分钟，补满两位，14
+    // m: 分钟，14
+    // ss: 秒，补满两位，20
+    // s: 秒，20
+    // w: 星期，为 ['日', '一', '二', '三', '四', '五', '六'] 中的某一个，本 demo 结果为 五
+// 输入 formatDate(new Date(1409894060000), 'yyyy-MM-dd HH:mm:ss 星期w')
+    // 输出 2014-09-05 13:14:20 星期五
+
+    function formatDate(time,formatStr) {
+        let obj = {
+            yyyy:time.getFullYear(),
+            yy:(""+ time.getFullYear()).slice(-2),
+            M:time.getMonth()+1,
+            MM:("0"+ (time.getMonth()+1)).slice(-2),
+            d:time.getDate(),
+            dd:("0" + time.getDate()).slice(-2),
+            H:time.getHours(),
+            HH:("0" + time.getHours()).slice(-2),
+            h:time.getHours() % 12,
+            hh:("0"+time.getHours() % 12).slice(-2),
+            m:time.getMinutes(),
+            mm:("0" + time.getMinutes()).slice(-2),
+            s:time.getSeconds(),
+            ss:("0" + time.getSeconds()).slice(-2),
+            w:['日', '一', '二', '三', '四', '五', '六'][time.getDay()]
+        };
+        // console.log(formatStr.match(/([a-z]+)/ig))
+        return formatStr.replace(/([a-z]+)/ig,function($1){return obj[$1]});
+    }
+
+    // console.log(formatDate(new Date(), 'yyyy-MM-dd HH:mm:ss 星期w'));
+
+    /** 输出指定格式 end **/
+
+
+
+    /** 如果第二个参数 bUnicode255For1 === true，则所有字符长度为 1
+     否则如果字符 Unicode 编码 > 255 则长度为 2 **/
+    // str.charCodeAt(index)  获取字符的编码值
+    function customLen(str,bUnicode255For1) {
+        if (bUnicode255For1) {
+            return str.length
+        } else {
+            let len = str.length
+            for (let i=0;i<str.length;i++) {
+                if (str.charCodeAt(i) > 255) {
+                    len++
+                }
+            }
+            return len
+        }
+    }
+    /** 如果第二个参数 bUnicode255For1 === true，则所有字符长度为 1
+     否则如果字符 Unicode 编码 > 255 则长度为 2 end**/
+
+    /** 判断邮箱字符串 **/
+
+    function isAvailableEmail(sEmail) {
+        return /^[a-zA-Z0-9]+[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.-]+(\.[a-zA-Z0-9_.-]+)+$/.test(sEmail)
+    }
+    // console.log(isAvailableEmail('15693163@qq.com')
+    /** 判断邮箱字符串 **/
+
+    /** 将 rgb 颜色字符串转换为十六进制的形式，如 rgb(255, 255, 255) 转为 #ffffff
+     1. rgb 中每个 , 后面的空格数量不固定
+     2. 十六进制表达式使用六位小写字母
+     3. 如果输入不符合 rgb 格式，返回原始输入 **/
+
+    function rgb2hex(sRGB) {
+        let arr = sRGB.match(/(?<=rgb\().*?(?=\))/)[0].split(',')
+        if (arr.length !== 3) {
+            return sRGB
+        }
+        let result = ''
+        arr.forEach(item => {
+            let str = item.trim()
+            if (str && /\d+/.test(str) && Number(str) <= 255) {
+                result += (Number(str)).toString(16)
+            } else {
+                return sRGB
+            }
+        })
+        return `#${result}`
+    }
+
+    // 位运算实现
+   /* function rgb2hex(sRGB) {
+        return sRGB.replace(/^rgb\((\d+)\s*\,\s*(\d+)\s*\,\s*(\d+)\)$/g, function(str, r, g, b){
+            return '#' +
+                ('00000' + (r << 16 | g << 8 | b).toString(16)).slice(-6);
+        });
+    }*/
+
+    // console.log(rgb2hex('rgb(255,255,100)'))
+
+    /** ****** **/
+
+
+    /** 将类似 font-size 改为 fontSize **/
+    // 1. 以 - 为分隔符，将第二个起的非空单词首字母转为大写
+    // 2. -webkit-border-image 转换后的结果为 webkitBorderImage
+    function cssStyle2DomStyle(sName) {
+        let replaceArr = sName.match(/(?<=[a-z]-)([a-z])+/g)
+        let result = sName
+        result = result[0] === '-' ? result.substring(1) : result  // 去除第一个 '-'
+        replaceArr.forEach(item => {
+            let newWord = item.split('')[0].toUpperCase() + item.substring(1)
+            result = result.replace(`-${item}`,newWord)
+
+        })
+        return result
+    }
+    // console.log(cssStyle2DomStyle('-webkit-border-image'))
+
+    /** 将类似 font-size 改为 fontSize **/
+
+
+    /**
+     *
+     * 统计字符串中每个字符的出现频率，返回一个 Object，key 为统计字符，value 为出现频率
+     1. 不限制 key 的顺序
+     2. 输入的字符串参数不会为空
+     3. 忽略空白字符
+     * **/
+
+    function statisticsCahrNumber(str) {
+        let result = {}
+        let arr = str.split('')
+        arr.forEach(char => {
+            if (char !== ' ') {
+                result[char] ? result[char]++ : result[char]=1
+            }
+        })
+        // console.log(result)
+    }
+    statisticsCahrNumber('just for test!!!')
+    /**  end  **/
+
+   /** 找出元素 item 在给定数组 arr 中的位置, 不存在返回 -1 **/
+
+   function customIndexOf(arr, item) {
+        // return arr.indexOf(item)
+       for (let i=0;i<arr.length;i++) {
+           if (arr[i] === item) return i
+       }
+       return -1
+
+   }
+
+   /** 找出元素 item 在给定数组 arr 中的位置, 不存在返回 -1 **/
+
+   /** 移除数组 arr 中的所有值与 item 相等的元素。不要直接修改数组 arr，结果返回新的数组 **/
+   function remove(arr, item) {
+        return arr.filter(str => {
+            return str !== item
+        })
+   }
+   // 修改原数组
+    function removeWithoutCopy(arr, item) {
+
+        for (let i=0;i<arr.length;) {
+            arr[i] === item ? arr.splice(i,1) : i++
+        }
+        return arr
+    }
+
+    // let arr = [1, 2, 2, 3, 4, 2, 2]
+    // console.log(removeWithoutCopy(arr,2),'长度为',arr.length)
+
+    /** 在数组 arr 末尾添加元素 item。不要直接修改数组 arr，结果返回新的数组 **/
+    function append(arr, item) {
+        return arr.concat([item])
+    }
+
+    /**
+     删除数组 arr 最后一个元素。不要直接修改数组 arr，结果返回新的数组 **/
+    function truncate(arr) {
+        return arr.filter((item,index) => {
+            return index !== arr.length-1
+        })
+    }
+    // let test2 = [1, 2, 3, 4];
+    //  let result = truncate(test2);
+    // console.log(result,result.length)
+
+
+    /** 合并数组 arr1 和数组 arr2。不要直接修改数组 arr，结果返回新的数组 **/
+    function concat(arr1, arr2) {
+        return arr1.concat(arr2)
+    }
+
+    // 统计数组 arr 中值等于 item 的元素出现的次数
+    function count(arr, item) {
+        let cot = 0
+        arr.forEach(ele => {
+            ele === item && cot++
+        })
+        return cot
+    }
+
+    /** 找出数组 arr 中重复出现过的元素 **/
+    function duplicates(arr) {
+        let map = new Map()
+        let result = []
+        arr.forEach(item => {
+            map.set(item,map.has(item) ? map.get(item)+1 : 1)
+        })
+        // 过滤map
+        // const resultMap = new Map(
+        //     [...map].filter(([key,value]) => value > 1)
+        // )
+
+        map.forEach((value,key) => {
+            value > 1 && result.push(key)
+        })
+       return result
+
+    }
+
+    console.log(duplicates([1, 2, 4, 4, 3, 3, 1, 5, 3]).sort().join(' '))
+
+</script>
+</body>
+</html>
